@@ -47,7 +47,8 @@ class Cell(QWidget):
                 f = p.font()
                 f.setBold(True)
                 p.setFont(f)
-                p.drawText(r, Qt.Alignment.AlignCenter, str(self.mines_around))
+                p.drawText(r, Qt.AlignmentFlag.AlignCenter,
+                           str(self.mines_around))
 
     def reset(self):
         self.is_start = False
@@ -56,6 +57,18 @@ class Cell(QWidget):
         self.is_revealed = False
         self.is_flagged = False
         self.is_end = False
+        self.update()
+
+    def click(self):
+        if not self.is_revealed and not self.is_flagged:
+            self.reveal()
+
+    def reveal(self):
+        if not self.is_revealed:
+            self.reveal_self()
+
+    def reveal_self(self):
+        self.is_revealed = True
         self.update()
 
 
@@ -177,8 +190,12 @@ class MainWindow(QMainWindow):
                        in self.get_all_cells()
                        if not cell.is_mine and cell.mines_around == 0
                        ]
+        start_cell = random.choice(empty_cells)
+        start_cell.is_start = True
 
-        random.choice(empty_cells).is_start = True
+        for _, _, cell in self.get_around_cells(start_cell.x, start_cell.y):
+            if not cell.is_mine:
+                cell.click()
 
 
 if __name__ == '__main__':
