@@ -11,6 +11,9 @@ LEVELS = (
     (24, 99),
 )
 
+IMG_BOMB = QImage('./images/bomb.png')
+IMG_CLOCK = QImage('./images/clock.png')
+
 
 class MainWindow(QMainWindow):
 
@@ -47,9 +50,19 @@ class MainWindow(QMainWindow):
         self.button.setIcon(QIcon('./images/smiley.png'))
         self.button.setFlat(True)
 
+        l = QLabel()
+        l.setPixmap(QPixmap.fromImage(IMG_BOMB))
+        l.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        toolbar.addWidget(l)
+
         toolbar.addWidget(self.mines)
         toolbar.addWidget(self.button)
         toolbar.addWidget(self.clock)
+
+        l = QLabel()
+        l.setPixmap(QPixmap.fromImage(IMG_CLOCK))
+        l.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        toolbar.addWidget(l)
 
         main_layout = QVBoxLayout()
         main_layout.addLayout(toolbar)
