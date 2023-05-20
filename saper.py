@@ -35,6 +35,10 @@ class Cell(QWidget):
         p.setPen(pen)
         p.drawRect(r)
 
+        if self.is_revealed:
+            if self.is_mine:
+                p.drawPixmap(r, QPixmap(IMG_BOMB))
+
     def reset(self):
         self.is_start = False
         self.is_mine = False
@@ -122,10 +126,22 @@ class MainWindow(QMainWindow):
         for _, _, cell in self.get_all_cells():
             cell.reset()
 
+        mine_positions = self.set_mines()
+
     def get_all_cells(self):
         for x in range(self.board_size):
             for y in range(self.board_size):
                 yield (x, y, self.grid.itemAtPosition(x, y).widget())
+
+    def set_mines(self):
+        positions = []
+        while len(positions) < self.mines_count:
+            x = random.randint(0, self.board_size - 1)
+            y = random.randint(0, self.board_size - 1)
+            if (x, y) not in positions:
+                self.grid.itemAtPosition(x, y).widget().is_mine = True
+                positions.append((x, y))
+            return positions
 
 
 if __name__ == '__main__':
