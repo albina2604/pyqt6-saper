@@ -35,6 +35,15 @@ class Cell(QWidget):
         p.setPen(pen)
         p.drawRect(r)
 
+    def reset(self):
+        self.is_start = False
+        self.is_mine = False
+        self.mines_around = 0
+        self.is_revealed = False
+        self.is_flagged = False
+        self.is_end = False
+        self.update()
+
 
 class MainWindow(QMainWindow):
 
@@ -48,6 +57,7 @@ class MainWindow(QMainWindow):
         self.setFixedSize(self.sizeHint())
         self.initUI()
         self.init_grid()
+        self.reset()
         self.show()
 
     def initUI(self):
@@ -103,6 +113,19 @@ class MainWindow(QMainWindow):
             for y in range(self.board_size):
                 cell = Cell(x, y)
                 self.grid.addWidget(cell, x, y)
+
+    def reset(self):
+        self.mines_count = LEVELS[self.level][1]
+        self.mines.setText(f'{self.mines_count:03d}')
+        self.clock.setText('000')
+
+        for _, _, cell in self.get_all_cells():
+            cell.reset()
+
+    def get_all_cells(self):
+        for x in range(self.board_size):
+            for y in range(self.board_size):
+                yield (x, y, self.grid.itemAtPosition(x, y).widget())
 
 
 if __name__ == '__main__':
