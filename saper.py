@@ -32,6 +32,7 @@ STATUS_ICONS = {
 class Cell(QWidget):
     expandable = pyqtSignal(int, int)
     clicked = pyqtSignal()
+    flagged = pyqtSignal(bool)
     game_over = pyqtSignal()
 
     def __init__(self, x, y):
@@ -111,6 +112,7 @@ class Cell(QWidget):
     def toggle_flag(self):
         self.is_flagged = not self.is_flagged
         self.update()
+        self.flagged.emit(self.is_flagged)
 
 
 class MainWindow(QMainWindow):
@@ -188,6 +190,7 @@ class MainWindow(QMainWindow):
                 cell.expandable.connect(self.expand_reveal)
                 cell.clicked.connect(self.handle_click)
                 cell.game_over.connect(self.game_over)
+                cell.flagged.connect(self.handle_flag)
 
     def reset(self):
         self.mines_count = LEVELS[self.level][1]
@@ -270,6 +273,10 @@ class MainWindow(QMainWindow):
 
     def game_over(self):
         self.update_status(STATUS_FAILED)
+
+    def handle_flag(self, flagged):
+        self.mines_count += -1 if flagged else 1
+        self.mines.setText(f'{self.mines_count:03d}')
 
 
 if __name__ == '__main__':
