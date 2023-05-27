@@ -71,12 +71,16 @@ class Cell(QWidget):
     def reveal(self):
         if not self.is_revealed:
             self.reveal_self()
-            if self.mines_around ==0:
+            if self.mines_around == 0:
                 self.expandable.emit(self.x, self.y)
 
     def reveal_self(self):
         self.is_revealed = True
         self.update()
+
+    def mouseReleaseEvent(self, event):
+        if event.button() == Qt.MouseButton.LeftButton:
+            self.click()
 
 
 class MainWindow(QMainWindow):
@@ -149,7 +153,6 @@ class MainWindow(QMainWindow):
                 self.grid.addWidget(cell, x, y)
                 cell.expandable.connect(self.expand_reveal)
 
-
     def reset(self):
         self.mines_count = LEVELS[self.level][1]
         self.mines.setText(f'{self.mines_count:03d}')
@@ -209,7 +212,7 @@ class MainWindow(QMainWindow):
     def expand_reveal(self, x, y):
         for _, _, cell in self.get_revealable_cells(x, y):
             cell.reveal()
-    
+
     def get_revealable_cells(self, x, y):
         for xi, yi, cell in self.get_around_cells(x, y):
             if not cell.is_mine and not cell.is_flagged and not cell.is_revealed:
