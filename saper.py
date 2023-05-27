@@ -64,7 +64,7 @@ class Cell(QWidget):
                 p.drawPixmap(r, QPixmap(IMG_BOMB))
             elif self.is_start:
                 p.drawPixmap(r, QPixmap(IMG_ROCKET))
-            else:
+            elif self.mines_around > 0:
                 pen = QPen(Qt.GlobalColor.black)
                 p.setPen(pen)
                 f = p.font()
