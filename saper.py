@@ -108,6 +108,7 @@ class Cell(QWidget):
         elif event.button() == Qt.MouseButton.RightButton:
             if not self.is_revealed:
                 self.toggle_flag()
+        self.clicked.emit()
 
     def toggle_flag(self):
         self.is_flagged = not self.is_flagged
@@ -265,6 +266,8 @@ class MainWindow(QMainWindow):
         if self.status == STATUS_READY:
             self.update_status(STATUS_PLAY)
             self._timer_start = int(time.time())
+        elif self.status == STATUS_PLAY:
+            self.check_win()
 
     def update_timer(self):
         if self.status == STATUS_PLAY:
@@ -273,10 +276,34 @@ class MainWindow(QMainWindow):
 
     def game_over(self):
         self.update_status(STATUS_FAILED)
+        self.reveal_grid()
+
+    def reveal_grid(self):
+        for _, _, cell in self.get_all_cells():
+            if not (cell.is_flagged and self.is_mine):
+                cell.reveal_self()
 
     def handle_flag(self, flagged):
         self.mines_count += -1 if flagged else 1
         self.mines.setText(f'{self.mines_count:03d}')
+
+    def check_win(self):
+        if self.mines_count == 0:
+            if all(cell.is_revealed or cell.is_flagged for _, _, cell in self.get_all_cells()):
+                self.update_status(STATUS_SUCCESS)
+        else:
+            unrevealed = []
+            for _, _, cell in self.get_all_cells():
+                if not cell.is_revealed and not cell.is_flagged:
+                    unrevealed.append(cell)
+                    if len(unrevealed) > self.mines_count or not cell.is_mine:
+                        return
+
+            if len(unrevealed) == self.mines_count:
+                if all(cell.is_flagged == cell.is_mine or cell in unrevealed for _, _, cell in self.get_all_cells()):
+                    for cell in unrevealed:
+                        cell.toggle_flag()
+                        self.update_status(STATUS_SUCCESS)
 
 
 if __name__ == '__main__':
